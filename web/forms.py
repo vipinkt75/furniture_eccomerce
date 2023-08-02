@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import Contact
 from django.forms import widgets
 from django.forms.widgets import (EmailInput, TextInput)
+from django import forms
                                   
 
 
@@ -28,7 +29,7 @@ def __init__(self, *args, **kwargs):
 	    super(SignUpForm, self).__init__(*args, **kwargs)
 
 
-from django import forms
+
 
 class ContactForm(forms.ModelForm):
     SUBJECT_CHOICES = [

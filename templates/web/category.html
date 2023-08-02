@@ -85,10 +85,10 @@
                     </ul>
 
                     <div class="dropdown cart-dropdown">
-                        <a class="dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-expanded="false">
+                        <a class="dropdown-toggle" href="{% url 'web:cart' %}" data-toggle="dropdown" role="button" aria-expanded="false">
                             <span class="cart-icon">
                                 <img src="{% static 'web/images/bag.png' %}" alt="Cart">
-                                <span class="cart-count">4</span>
+                                <span class="cart-count">{{request.session.cart|length}}</span>
                             </span>
                             <i class="fa fa-caret-down"></i>
                         </a>

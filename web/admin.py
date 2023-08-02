@@ -12,3 +12,4 @@ class ContactAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'filter_class')
+

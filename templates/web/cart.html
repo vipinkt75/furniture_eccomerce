@@ -1,6 +1,6 @@
 
 {% load static %}
-
+{% load cart_tag %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -19,6 +19,17 @@
         
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="{% static 'web/images/icons/favicon.png' %}">
+
+
+
+
+
+<link href='https://fonts.googleapis.com/css?family=Lato:300,400' rel='stylesheet' type='text/css'>
+
+<link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/s.cdpn.io/5175/utf-latest.min.css">
+
+
+
 
         <!-- Modernizr -->
         <script src="{% static 'web/js/modernizr.js' %}"></script>
@@ -197,7 +208,25 @@
 
             <div class="sidemenu-overlay"></div><!-- End .sidemenu-overlay -->
             
-            <div class="main">
+
+
+
+
+
+
+
+
+
+{% comment %} **************************************************************************************************** {% endcomment %}
+
+
+
+
+
+
+
+
+            {% comment %} <div class="main">
                 <div class="container">
                     <div class="row">
                         <div class="col-md-9 col-md-push-3">
@@ -219,40 +248,33 @@
                                     </thead>
                                     <tbody>
                                        
-                                            {% for key,value in request.session.cart.items %}
-                                            <tr>
+                                         {% for key,value in request.session.cart.items  %}
+                                        <tr>
                                             <td class="product-col">
                                                 <div class="product">
                                                     <figure class="product-image-container">
                                                         <a href="product.html">
-                                                            <img src="{{value.image}}" alt="Product">
+                                                            <img src="{{ value.image }}" alt="Product">
                                                         </a>
                                                     </figure>
                                                     <h3 class="product-title">
-                                                        <a href="product.html">{{value.name}}</a>
+                                                        <a href="product.html">{{ value.name }}</a>
                                                     </h3>
                                                 </div><!-- End .product -->
                                             </td>
-                                            <td class="price-col">{{value.price}}</td>
+                                            <td class="price-col">${{ value.price }}</td>
                                             <td class="quantity-col">
-                                                <div class="input-group quantity mx-auto" style="width: 100px;">
-                                                    <div class="input-group-btn">
-                                                        <a href=""><button class="btn btn-sm btn-primary btn-minus" >
-                                                        <i class="fa fa-minus"></i>
-                                                        </button></a>
-                                                    </div>
-                                                    <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center"</>
-                                                    <div class="input-group-btn">
-                                                        <a href=""><button class="btn btn-sm btn-primary btn-plus">
-                                                            <i class="fa fa-plus"></i>
-                                                        </button></a>
-                                                    </div>
+                                                <div id="field1">
+                                                    <a href="{% url 'web:item_decrement' value.product_id %}"><button type="button" id="sub" class="sub">-</button></a>
+                                                    <input type="number" id="1" value="{{value.quantity}}" min="1" max="3" />
+                                                    <a href="{% url 'web:item_increment' value.product_id %}"><button type="button" id="add" class="add">+</button></a>
                                                 </div>
                                             </td>
-                                            <td class="total-col"></td> 
-                                            <td class="delete-col"><a href="#" class="btn-delete" title="Delete product" role="button"></a></td>
+                                            <td class="total-col">${{ value.price|multiply:value.quantity }}</td>
+                                            <td class="delete-col"><a href="{% url 'web:item_clear' key %}" class="btn-delete" title="Delete product" role="button"></a></td>
                                         </tr>
-                                            {% endfor %}
+                                        {% endfor %}
+
                                         
 
                                     </tbody>
@@ -261,6 +283,10 @@
 
                             <div class="row">
                                 <div class="col-sm-7">
+                                <div class="cart-clear">
+                                            <a href="{% url 'web:cart_clear' %}" class="btn btn-accent">Clear Shopping Cart</a>
+                                        </div>
+                                        <br>
                                     <div class="cart-discount">
                                         <h3>Coupon Discount</h3>
                                         <p>Enter your coupon code if you have one</p>
@@ -278,14 +304,14 @@
 
                                 <div class="col-sm-4 col-sm-offset-1">
                                     <div class="cart-proceed">
-                                        <p class="cart-subtotal"><span>SUB TOTAL :</span> $405.00</p>
-                                        <p class="cart-total"><span>Grand TOTAL :</span> <span class="text-accent">$405.00</span></p>
+                                        <p class="cart-subtotal"><span>SUB TOTAL :</span><span>${{cart_total_amount}}</span></p>
+                                        <p class="cart-total"><span>Grand TOTAL :</span> <span class="text-accent">${{cart_total_amount |add:20| add:30}}</span></p>
                                         <a href="checkout.html" class="btn btn-accent">Proceed to Checkout</a>
                                     </div><!-- Endd .cart-proceed -->
                                 </div><!-- End .col-sm-4 -->
                             </div><!-- End .row -->
                         </div><!-- End .col-md-9 -->
-
+                    </div><!-- End .row -->
                         <aside class="col-md-3 col-md-pull-9 sidebar sidebar-shop">
                             <div class="widget widget-box widget-shop-category active">
                                 <h3 class="widget-title">Category <a href="#" class="btn-filter" role="button">Filter<i class="fa fa-caret-down"></i></a></h3>
@@ -475,8 +501,104 @@
                         </aside><!-- End .col-md-3 -->
                     </div><!-- End .row -->
                 </div><!-- End .container -->
-            </div><!-- End .main -->
-            
+            </div><!-- End .main --> 
+            {% endcomment %}
+
+
+
+
+
+
+{% comment %} *********************************************************************************************** {% endcomment %}
+
+
+
+
+
+
+
+
+
+  <div class="main">
+    <h1>Shopping cart</h1>
+    <h2 class="sub-heading">Free shipping from $100!</h2>
+    
+    <section class="shopping-cart">
+      <ol class="ui-list shopping-cart--list" id="shopping-cart--list">
+        <script id="shopping-cart--list-item-template" type="text/template">
+          {% for key, value in request.session.cart.items %}
+          <li class="_grid shopping-cart--list-item">
+            <div class="_column product-image">
+              <img class="product-image--img" src="{{ value.image }}" alt="Item image" />
+            </div>
+            <div class="_column product-info">
+              <h4 class="product-name">{{ value.name }}</h4>
+              <div class="price product-single-price">${{ value.price }}</div>
+            </div>
+            <div class="_column product-modifiers" data-product-price="{{ value.price }}">
+              <div class="_grid">
+                <button class="_btn _column product-subtract">&minus;</button>
+                <div class="_column product-qty">1</div>
+                <button class="_btn _column product-plus">&plus;</button>
+              </div>
+              <button class="_btn entypo-trash product-remove">Remove</button>
+              <div class="price product-total-price">$0.00</div>
+            </div>
+          </li>
+          {% endfor %}
+        </script>
+      </ol>
+
+      <footer class="_grid cart-totals">
+        <div class="_column subtotal" id="subtotalCtr">
+          <div class="cart-totals-key">Subtotal</div>
+          <div class="cart-totals-value">$0.00</div>
+        </div>
+    
+        <!-- Add the element to display taxes -->
+        <div class="_column taxes" id="taxesCtr">
+          <div class="cart-totals-key">Taxes (6%)</div>
+          <div class="cart-totals-value">$0.00</div>
+        </div>
+    
+        <div class="_column shipping" id="shippingCtr">
+          <div class="cart-totals-key">Shipping</div>
+          <div class="cart-totals-value">$0.40</div>
+        </div>
+
+        <div class="_column total" id="totalCtr">
+          <div class="cart-totals-key">Total</div>
+          <div class="cart-totals-value">$0.00</div>
+        </div>
+    
+       
+    
+        <div class="_column checkout">
+          <button class="_btn checkout-btn entypo-forward">Checkout</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <footer class="footer">
                 <div class="container">
                     <div class="info-bar">
@@ -575,8 +697,154 @@
         
         <a id="scroll-top" href="#top" title="Scroll top"><i class="fa fa-angle-up"></i></a>
 
-        <!-- End -->
 
+
+
+
+{% comment %} *************************************************** {% endcomment %}
+
+
+
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min.js"></script>
+  <script>
+    /* jslint browser: true*/
+    /*global $*/
+
+    // https://github.com/jasonmoo/t.js
+    (function(){function c(a){this.t=a}function l(a,b){for(var e=b.split(".");e.length;){if(!(e[0]in a))return!1;a=a[e.shift()]}return a}function d(a,b){return a.replace(h,function(e,a,i,f,c,h,k,m){var f=l(b,f),j="",g;if(!f)return"!"==i?d(c,b):k?d(m,b):"";if(!i)return d(h,b);if("@"==i){e=b._key;a=b._val;for(g in f)f.hasOwnProperty(g)&&(b._key=g,b._val=f[g],j+=d(c,b));b._key=e;b._val=a;return j}}).replace(k,function(a,c,d){return(a=l(b,d))||0===a?"%"==c?(new Option(a)).innerHTML.replace(/"/g,"&quot;"):
+    a:""})}var h=/\{\{(([@!]?)(.+?))\}\}(([\s\S]+?)(\{\{:\1\}\}([\s\S]+?))?)\{\{\/\1\}\}/g,k=/\{\{([=%])(.+?)\}\}/g;c.prototype.render=function(a){return d(this.t,a)};window.t=c})();
+    // end of 't';
+    
+    Number.prototype.to_$ = function () {
+      return "$" + parseFloat( this ).toFixed(2);
+    };
+    String.prototype.strip$ = function () {
+      return this.split("$")[1];
+    };
+
+    
+    
+    var app = {
+      shipping : 5.00,
+      products : [
+        {
+          "name" : "Self stirring mug",
+          "img" : "https://i.dailymail.co.uk/i/pix/2012/09/16/article-2204256-15053801000005DC-304_634x524.jpg",
+          "price" : "12.35",
+          "desc" : "Don't get tired!"
+        }
+      ],
+    
+      removeProduct: function () {
+        "use strict";
+        var item = $(this).closest(".shopping-cart--list-item");
+        item.addClass("closing");
+        window.setTimeout( function () {
+          item.remove();
+          app.updateTotals();
+        }, 500); // Timeout for css animation
+      },
+    
+      addProduct: function () {
+        "use strict";
+        var qtyCtr = $(this).prev(".product-qty"),
+          quantity = parseInt(qtyCtr.html(), 10) + 1;
+        app.updateProductSubtotal(this, quantity);
+      },
+    
+      subtractProduct: function () {
+        "use strict";
+        var qtyCtr = $(this).next(".product-qty"),
+          num = parseInt(qtyCtr.html(), 10) - 1,
+          quantity = num <= 0 ? 0 : num;
+        app.updateProductSubtotal(this, quantity);
+      },
+    
+      updateProductSubtotal: function (context, quantity) {
+        "use strict";
+        var ctr = $(context).closest(".product-modifiers"),
+          productQtyCtr = ctr.find(".product-qty"),
+          productPrice = parseFloat(ctr.data("product-price")),
+          subtotalCtr = ctr.find(".product-total-price"),
+          subtotalPrice = quantity * productPrice;
+        productQtyCtr.html(quantity);
+        subtotalCtr.html(subtotalPrice.to_$());
+        app.updateTotals();
+      },
+    
+      updateTotals: function () {
+        "use strict";
+        var products = $(".shopping-cart--list-item"),
+          subtotal = 0,
+          shipping;
+        for (var i = 0; i < products.length; i += 1) {
+          subtotal += parseFloat($(products[i]).find(".product-total-price").html().strip$());
+        }
+        shipping = (subtotal >= 100) ? 0 : app.shipping;
+        $("#subtotalCtr").find(".cart-totals-value").html(subtotal.to_$());
+        $("#taxesCtr").find(".cart-totals-value").html((subtotal * 0.06).to_$());
+        $("#totalCtr").find(".cart-totals-value").html((subtotal * 1.06 + 40).to_$());
+        {% comment %} $("#shippingCtr").find(".cart-totals-value").html(shipping.to_$()); {% endcomment %}
+      },
+    
+      attachEvents: function () {
+        "use strict";
+        $(".product-remove").on("click", app.removeProduct);
+        $(".product-plus").on("click", app.addProduct);
+        $(".product-subtract").on("click", app.subtractProduct);
+      },
+    
+      setProductImages: function () {
+        "use strict";
+        var images = $(".product-image"),
+          ctr,
+          img;
+        for (var i = 0; i < images.length; i += 1) {
+          ctr = $(images[i]),
+          img = ctr.find(".product-image--img");
+          ctr.css("background-image", "url(" + img.attr("src") + ")");
+          img.remove();
+        }
+      },
+    
+      renderTemplates: function () {
+        "use strict";
+        var products = app.products,
+          content = [],
+          template = new t($("#shopping-cart--list-item-template").html());
+        for (var i = 0; i < products.length; i += 1) {
+          content[i] = template.render(products[i]);
+        }
+        $("#shopping-cart--list").html(content.join(""));
+      }
+    };
+    
+    app.renderTemplates();
+    app.setProductImages();
+    app.attachEvents();
+
+    
+  </script>
+
+
+{% comment %} ************************************************** {% endcomment %}
+
+
+        <!-- End -->
+        {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script>
+                        $('.add').click(function () {
+                        if ($(this).prev().val() < 10) {
+                        $(this).prev().val(+$(this).prev().val() + 1);
+                        }
+                });
+                $('.sub').click(function () {
+                        if ($(this).next().val() > 1) {
+                        if ($(this).next().val() > 1) $(this).next().val(+$(this).next().val() - 1);
+                        }
+                });
+        </script>  {% endcomment %}
         <script src="{% static 'web/js/plugins.js' %}"></script>
         <script src="{% static 'web/js/main.js' %}"></script>
     </body>

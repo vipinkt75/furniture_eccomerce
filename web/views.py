@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib import messages
-from .forms import SignUpForm, ContactForm
+from .forms import SignUpForm, ContactForm 
 from django.http import HttpResponse, JsonResponse
 from .models import Product
 from cart.cart import Cart
+import json
 
 
 # Create your views here.
@@ -117,13 +118,14 @@ def category(request):
     return render(request, 'web/category.html', context)
 
 
+def checkout(request):
+    context = {"is_checkout": True}
+    return render(request, "web/checkout.html", context)
+
 def cart(request):
     context = {"is_cart": True}
     return render(request, "web/cart.html", context)
 
-def checkout(request):
-    context = {"is_checkout": True}
-    return render(request, "web/checkout.html", context)
 
 
 # @login_required(login_url="login")
@@ -134,12 +136,11 @@ def cart_add(request, id):
     return redirect("web:category")
 
 
-
 def item_increment(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.add(product=product)
-    return redirect("cart_detail")
+    return redirect("web:cart")
 
 
 
@@ -147,4 +148,21 @@ def item_decrement(request, id):
     cart = Cart(request)
     product = Product.objects.get(id=id)
     cart.decrement(product=product)
-    return redirect("cart_detail")
+    return redirect("web:cart")
+
+
+def item_clear(request, id):
+    cart = Cart(request)
+    product = Product.objects.get(id=id)
+    cart.remove(product)
+    return redirect("web:cart")
+
+
+
+def cart_detail(request):
+    return render(request, 'web/cart.html')
+
+def cart_clear(request):
+    cart = Cart(request)
+    cart.clear()
+    return redirect("web:cart")
